@@ -10,9 +10,6 @@ const Page = forwardRef((props, ref) => {
         <div className="demoPage bg-white shadow-sm border border-gray-200 h-full overflow-hidden" ref={ref}>
             <div className="relative h-full flex flex-col">
                 {props.children}
-                <div className="absolute bottom-2 text-[10px] text-gray-400 w-full text-center font-serif">
-                    {props.number && `Page ${props.number}`}
-                </div>
             </div>
         </div>
     );
@@ -23,41 +20,6 @@ export default function ComicDisplay({ comic }) {
     const bookRef = useRef();
     const [isDownloading, setIsDownloading] = useState(false);
     const [pageIndex, setPageIndex] = useState(0);
-
-    if (!comic) return null;
-
-    // Calculate Transform classes for Centering (Desktop Only)
-    // Cover (0) is on Right -> Shift Left (-25%) on Desktop
-    // End Page (Last) is on Left -> Shift Right (+25%) on Desktop
-    const lastIndex = comic.panels.length + 1;
-    let transformClass = 'translate-x-0';
-    if (pageIndex === 0) transformClass = 'translate-x-0 md:-translate-x-[25%]';
-    else if (pageIndex === lastIndex) transformClass = 'translate-x-0 md:translate-x-[25%]';
-
-    // Cover Page
-    const coverPage = (
-        <div className="h-full flex flex-col items-center justify-center bg-love-50 p-6 border-4 border-love-900/10 text-center relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]"></div>
-            <div className="z-10 border-4 border-double border-love-800 p-8 py-16 bg-white shadow-xl rotate-1">
-                <h1 className="text-4xl md:text-5xl font-serif font-bold text-love-800 mb-4">{comic.title}</h1>
-                <div className="w-16 h-1 bg-love-500 mx-auto mb-6"></div>
-                <p className="text-gray-500 italic font-serif">A True Story of Love & Magic</p>
-                <div className="mt-8 text-xs text- любви-400 uppercase tracking-widest">
-                    AI Comic Generator
-                </div>
-            </div>
-        </div>
-    );
-
-    // End Page
-    const endPage = (
-        <div className="h-full flex flex-col items-center justify-center bg-love-900 text-white p-6 relative overflow-hidden">
-            <h2 className="text-4xl font-serif font-bold mb-4">The End</h2>
-            <p className="text-love-200 italic">...or just the beginning?</p>
-            <div className="mt-12 opacity-50 text-6xl">❤️</div>
-        </div>
-    );
-
     const downloadPDF = async () => {
         setIsDownloading(true);
 
@@ -160,10 +122,43 @@ export default function ComicDisplay({ comic }) {
         }
     };
 
-    return (
-        <div className="w-full max-w-full md:max-w-[95vw] lg:max-w-7xl mx-auto animate-fade-in mt-4 md:mt-8 space-y-4 md:space-y-8 pb-12 flex flex-col items-center overflow-x-hidden">
+    // Calculate Transform classes for Centering (Desktop Only)
+    // Cover (0) is on Right -> Shift Left (-25%) on Desktop
+    // End Page (Last) is on Left -> Shift Right (+25%) on Desktop
+    const lastIndex = comic.panels.length + 1;
+    let transformClass = 'translate-x-0';
+    // if (pageIndex === 0) transformClass = 'translate-x-0 md:-translate-x-[25%]';
+    // else if (pageIndex === lastIndex) transformClass = 'translate-x-0 md:translate-x-[25%]';
 
-            <div className="text-center space-y-1 md:space-y-2 mb-2 md:mb-4 px-4">
+    // Cover Page
+    const coverPage = (
+        <div className="h-full flex flex-col items-center justify-center bg-love-50 p-6 border-4 border-love-900/10 text-center relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]"></div>
+            <div className="z-10 border-4 border-double border-love-800 p-8 py-16 bg-white shadow-xl rotate-1">
+                <h1 className="text-4xl md:text-5xl font-serif font-bold text-love-800 mb-4">{comic.title}</h1>
+                <div className="w-16 h-1 bg-love-500 mx-auto mb-6"></div>
+                <p className="text-gray-500 italic font-serif">A True Story of Love & Magic</p>
+                <div className="mt-8 text-xs text- любви-400 uppercase tracking-widest">
+                    AI Comic Generator
+                </div>
+            </div>
+        </div>
+    );
+
+    // End Page
+    const endPage = (
+        <div className="h-full flex flex-col items-center justify-center bg-love-900 text-white p-6 relative overflow-hidden">
+            <h2 className="text-4xl font-serif font-bold mb-4">The End</h2>
+            <p className="text-love-200 italic">...or just the beginning?</p>
+            <div className="mt-12 opacity-50 text-6xl">❤️</div>
+        </div>
+    );
+
+    return (
+        <div className="w-full max-w-full md:max-w-[95vw] lg:max-w-7xl mx-auto animate-fade-in mt-4 md:mt-8 space-y-6 md:space-y-4 pb-12 flex flex-col items-center overflow-x-hidden">
+
+            {/* ... (Header) ... */}
+            <div className="text-center space-y-2 mb-2 md:mb-4 px-4">
                 <span className="text-love-500 font-bold tracking-widest text-[8px] md:text-xs uppercase bg-white px-2 md:px-3 py-1 rounded-full shadow-sm">Interactive Flipbook</span>
                 <h2 className="text-xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
                     {comic.title}
@@ -172,34 +167,32 @@ export default function ComicDisplay({ comic }) {
 
             {/* Flipbook Container */}
             <div
-                className="relative z-10 w-full h-[50vh] md:h-[85vh] flex justify-center items-center transition-all duration-700 ease-in-out"
+                className="relative z-10 w-full min-h-[50vh] md:h-[85vh] py-4 md:py-0 flex justify-center items-center transition-all duration-700 ease-in-out overflow-hidden"
             >
                 <div
-                    className={`relative flex justify-center items-center h-full w-full transition-transform duration-500 ease-out ${transformClass}`}
+                    className={`relative flex justify-center items-center h-full w-fit max-w-full transition-transform duration-500 ease-out ${transformClass}`}
                 >
-                    {/* Navigation Arrows - Adjusted for Mobile */}
+                    {/* Navigation Arrows */}
                     <button
                         onClick={() => bookRef.current.pageFlip().flipPrev()}
-                        className="absolute left-1 md:-left-12 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-14 md:h-14 bg-white/60 md:bg-white/80 hover:bg-white text-love-600 rounded-full shadow-lg border border-love-100 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 backdrop-blur-sm"
+                        className="absolute left-1 md:-left-16 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-14 md:h-14 bg-white/60 md:bg-white/80 hover:bg-white text-love-600 rounded-full shadow-lg border border-love-100 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 backdrop-blur-sm"
                         aria-label="Previous Page"
                     >
                         <span className="text-lg md:text-2xl">←</span>
                     </button>
 
                     <HTMLFlipBook
-                        width={400}
-                        height={600}
+                        width={600}
+                        height={900}
                         size="stretch"
-                        minWidth={280}        // Reduced for mobile (spread ~560px, still might be tight, usually switches to portrait if single page)
-                        // Actually react-pageflip responsiveness is tricky.
-                        // Let's rely on size="stretch" and parent container constraints.
-                        maxWidth={800}
-                        minHeight={350}
-                        maxHeight={1000}
+                        minWidth={500}
+                        maxWidth={2000}
+                        minHeight={400}
+                        maxHeight={2000}
                         maxShadowOpacity={0.5}
                         showCover={true}
                         mobileScrollSupport={true}
-                        className="demo-book bg-white shadow-2xl"
+                        className="demo-book shadow-2xl"
                         ref={bookRef}
                         onFlip={(e) => setPageIndex(e.data)}
                     >
@@ -209,7 +202,7 @@ export default function ComicDisplay({ comic }) {
                         {/* Pages */}
                         {comic.panels.map((panel, idx) => (
                             <Page key={idx} number={idx + 1}>
-                                <div className="h-[60%] w-full bg-gray-50 border-b-2 border-gray-100 overflow-hidden relative group">
+                                <div className="h-[50%] w-full bg-gray-50 border-b-2 border-gray-100 overflow-hidden relative group">
                                     <img
                                         src={panel.image}
                                         alt={`Panel ${idx + 1}`}
@@ -225,16 +218,16 @@ export default function ComicDisplay({ comic }) {
                                     )}
                                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-20 pointer-events-none"></div>
                                 </div>
-                                <div className="h-[40%] p-2 md:p-6 flex flex-col justify-center text-center space-y-1 md:space-y-2 bg-white relative">
+                                <div className="h-[50%] p-2 md:p-6 flex flex-col justify-center text-center space-y-2 md:space-y-4 bg-white relative">
                                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-30 pointer-events-none"></div>
                                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 md:w-8 md:h-8 bg-white rounded-full border border-gray-200 flex items-center justify-center font-serif text-[8px] md:text-sm text-gray-400 shadow-sm z-10">
                                         {idx + 1}
                                     </div>
-                                    <p className="font-serif text-xs md:text-xl text-gray-800 italic leading-relaxed line-clamp-3 md:line-clamp-4 px-1">
+                                    <p className="font-serif text-xs md:text-2xl text-gray-800 italic leading-relaxed line-clamp-4 md:line-clamp-6 px-2">
                                         "{panel.dialogue}"
                                     </p>
-                                    <div className="w-8 md:w-12 h-px bg-love-200 mx-auto"></div>
-                                    <p className="text-[8px] md:text-xs text-gray-500 leading-snug px-1 line-clamp-2 md:line-clamp-3">
+                                    <div className="w-8 md:w-16 h-px bg-love-200 mx-auto"></div>
+                                    <p className="text-[8px] md:text-sm text-gray-500 leading-snug px-2 line-clamp-3 md:line-clamp-4">
                                         {panel.caption}
                                     </p>
                                 </div>
