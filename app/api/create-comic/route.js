@@ -24,6 +24,7 @@ export async function POST(req) {
         const file2 = formData.get('img2');
         const genre = formData.get('genre') || 'romantic';
         const style = formData.get('style') || 'comic';
+        const plot = formData.get('plot') || '';
 
         // Validation based on mode
         if (!name1 || (mode !== 'solo' && !name2)) {
@@ -42,9 +43,12 @@ export async function POST(req) {
                 const base64Data = Buffer.from(arrayBuffer).toString('base64');
                 const mimeType = file.type || 'image/jpeg';
 
-                const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const result = await model.generateContent([
-                    `Analyze this person's face and appearance in extreme detail for a character consistency reference.
+                const model = "gemini-1.5-flash";
+                const result = await ai.models.generateContent({
+                    model: model,
+                    contents: [
+                        {
+                            text: `Analyze this person's face and appearance in extreme detail for a character consistency reference.
                      Focus on:
                      1. Hair (color, exact style, length, texture)
                      2. Eyes (color, shape)
@@ -53,10 +57,12 @@ export async function POST(req) {
                      5. Age approximation
                      
                      Output format: '[Name] has [detailed description].'
-                     Keep it under 50 words but make it very specific.`,
-                    { inlineData: { data: base64Data, mimeType: mimeType } }
-                ]);
-                const desc = result.response.text().trim();
+                     Keep it under 50 words but make it very specific.`
+                        },
+                        { inlineData: { data: base64Data, mimeType: mimeType } }
+                    ]
+                });
+                const desc = result.candidates[0].content.parts[0].text.trim();
                 console.log(`👁️ Vision Analysis (${name}): ${desc}`);
                 return desc;
             } catch (e) {
@@ -93,6 +99,11 @@ export async function POST(req) {
             characterNames = `${name1} and ${name2}`;
         }
 
+        // Inject User Plot
+        if (plot) {
+            storyPromptContext += `\nSPECIFIC PLOT DETAILS PROVIDED BY USER (MUST FOLLOW): ${plot}`;
+        }
+
         const storySystemInstruction = `
         You are a master comic book writer specializing in ${genre} stories.
         ${storyPromptContext}
@@ -119,7 +130,10 @@ export async function POST(req) {
             const storyResp = await ai.models.generateContent({
                 model: "gemini-2.0-flash-exp",
                 contents: [{ text: storySystemInstruction }],
-                generationConfig: { responseMimeType: "application/json" }
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    temperature: 0.8 // Increased for variety
+                }
             });
 
             let text = storyResp.candidates[0].content.parts[0].text;

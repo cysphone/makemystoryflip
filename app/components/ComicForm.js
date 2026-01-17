@@ -9,7 +9,8 @@ export default function ComicForm({ onSubmit, isLoading }) {
         img2: null,
         genre: 'romantic',
         style: 'comic',
-        mode: 'couple' // 'couple', 'solo', 'friends'
+        mode: 'couple',
+        plot: ''
     });
 
     const handleChange = (e) => {
@@ -42,6 +43,7 @@ export default function ComicForm({ onSubmit, isLoading }) {
         data.append('genre', formData.genre);
         data.append('style', formData.style);
         data.append('mode', formData.mode);
+        data.append('plot', formData.plot);
 
         onSubmit(data);
     };
@@ -169,10 +171,20 @@ export default function ComicForm({ onSubmit, isLoading }) {
                             <option value="oil">🖼️ Oil Painting</option>
                         </select>
                     </div>
+                    <div className="space-y-1 col-span-2">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 pl-1">Story Plot / Additional Details (Optional)</label>
+                        <textarea
+                            name="plot"
+                            placeholder="E.g. A surprise proposal in Paris during rain..."
+                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-love-300 focus:border-transparent transition text-gray-700 placeholder-gray-300 min-h-[80px]"
+                            value={formData.plot}
+                            onChange={handleChange}
+                        />
+                    </div>
                 </div>
 
                 {/* Submit */}
-                <div className="pt-6">
+                <div className="pt-2">
                     <button
                         type="submit"
                         disabled={isLoading}

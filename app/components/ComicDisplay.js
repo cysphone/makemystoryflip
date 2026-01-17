@@ -152,32 +152,39 @@ export default function ComicDisplay({ comic }) {
     };
 
     return (
-        <div className="w-full max-w-6xl mx-auto animate-fade-in mt-12 space-y-12 pb-20 flex flex-col items-center">
+        <div className="w-full max-w-full md:max-w-[95vw] lg:max-w-7xl mx-auto animate-fade-in mt-4 md:mt-8 space-y-8 pb-12 flex flex-col items-center">
 
-            <div className="text-center space-y-2 mb-8">
-                <span className="text-love-500 font-bold tracking-widest text-xs uppercase bg-white px-3 py-1 rounded-full shadow-sm">Interactive Flipbook</span>
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900">
+            <div className="text-center space-y-2 mb-4">
+                <span className="text-love-500 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-white px-3 py-1 rounded-full shadow-sm">Interactive Flipbook</span>
+                <h2 className="text-2xl md:text-4xl font-serif font-bold text-gray-900 px-4">
                     {comic.title}
                 </h2>
             </div>
 
             {/* Flipbook Container */}
-            <div className="shadow-2xl rounded-sm bg-gray-800 p-2 md:p-4 perspective relative">
-                {/* Book Spine Effect - Removed to prevent blocking content */}
-                {/* <div className="absolute left-1/2 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 z-20 -translate-x-1/2 rounded-sm shadow-inner hidden md:block pointer-events-none"></div> */}
+            <div className="relative z-10 w-full h-[60vh] md:h-[80vh] flex justify-center items-center">
+                {/* Mobile/Desktop Navigation Arrows - Absolute Positioned */}
+                <button
+                    onClick={() => bookRef.current.pageFlip().flipPrev()}
+                    className="absolute left-2 md:left-4 z-20 w-10 h-10 md:w-14 md:h-14 bg-white/80 hover:bg-white text-love-600 rounded-full shadow-lg border border-love-100 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 backdrop-blur-sm"
+                    aria-label="Previous Page"
+                >
+                    ←
+                </button>
 
                 <HTMLFlipBook
-                    width={400}
-                    height={550}
+                    width={500}
+                    height={700}
                     size="stretch"
                     minWidth={300}
-                    maxWidth={500}
+                    maxWidth={1000}
                     minHeight={400}
-                    maxHeight={700}
+                    maxHeight={1400}
                     maxShadowOpacity={0.5}
                     showCover={true}
                     mobileScrollSupport={true}
-                    className="demo-book bg-white"
+                    className="demo-book bg-white shadow-2xl"
+                    ref={bookRef}
                 >
                     {/* Cover */}
                     <Page number={0}>{coverPage}</Page>
@@ -185,26 +192,32 @@ export default function ComicDisplay({ comic }) {
                     {/* Pages */}
                     {comic.panels.map((panel, idx) => (
                         <Page key={idx} number={idx + 1}>
-                            <div className="h-1/2 w-full bg-gray-50 border-b-2 border-gray-100 overflow-hidden relative group">
+                            <div className="h-[65%] w-full bg-gray-50 border-b-2 border-gray-100 overflow-hidden relative group">
                                 <img
                                     src={panel.image}
                                     alt={`Panel ${idx + 1}`}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                    crossOrigin="anonymous" // Helpful for canvas/pdf
+                                    crossOrigin="anonymous"
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = "https://placehold.co/600x400?text=Image+Load+Error";
+                                    }}
                                 />
                                 {panel.fallback && (
                                     <span className="absolute top-2 right-2 text-[8px] bg-yellow-200 px-1 rounded">AI Placeholder</span>
                                 )}
+                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-20 pointer-events-none"></div>
                             </div>
-                            <div className="h-1/2 p-6 flex flex-col justify-center text-center space-y-4 bg-white relative">
+                            <div className="h-[35%] p-3 md:p-6 flex flex-col justify-center text-center space-y-2 bg-white relative">
+                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-30 pointer-events-none"></div>
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full border border-gray-200 flex items-center justify-center font-serif text-sm text-gray-400 shadow-sm z-10">
                                     {idx + 1}
                                 </div>
-                                <p className="font-serif text-lg text-gray-800 italic leading-relaxed">
+                                <p className="font-serif text-base md:text-xl text-gray-800 italic leading-relaxed line-clamp-4">
                                     "{panel.dialogue}"
                                 </p>
                                 <div className="w-12 h-px bg-love-200 mx-auto"></div>
-                                <p className="text-xs text-gray-500 leading-snug">
+                                <p className="text-[10px] md:text-xs text-gray-500 leading-snug px-2 line-clamp-3">
                                     {panel.caption}
                                 </p>
                             </div>
@@ -215,29 +228,37 @@ export default function ComicDisplay({ comic }) {
                     <Page number={comic.panels.length + 1}>{endPage}</Page>
 
                 </HTMLFlipBook>
+
+                <button
+                    onClick={() => bookRef.current.pageFlip().flipNext()}
+                    className="absolute right-2 md:right-4 z-20 w-10 h-10 md:w-14 md:h-14 bg-white/80 hover:bg-white text-love-600 rounded-full shadow-lg border border-love-100 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 backdrop-blur-sm"
+                    aria-label="Next Page"
+                >
+                    →
+                </button>
             </div>
 
-            <p className="text-gray-400 text-sm italic animate-pulse">
-                (Click or drag corners to flip pages!)
+            <p className="text-gray-400 text-xs md:text-sm italic animate-pulse">
+                (Click arrows, drag corners, or use arrow keys!)
             </p>
 
             {/* Actions */}
-            <div className="flex justify-center gap-6 pt-6">
+            <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-6 pt-2 w-full px-4">
                 <button
                     onClick={downloadPDF}
                     disabled={isDownloading}
-                    className="px-8 py-3 bg-white hover:bg-gray-50 text-gray-800 rounded-full font-bold border border-gray-200 transition shadow-sm hover:shadow-md flex items-center gap-2"
+                    className="w-full md:w-auto px-8 py-3 bg-white hover:bg-gray-50 text-gray-800 rounded-full font-bold border border-gray-200 transition shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                 >
                     {isDownloading ? (
                         <span className="animate-spin text-xl">↻</span>
                     ) : (
                         <span>⬇</span>
                     )}
-                    <span>{isDownloading ? 'Exporting PDF...' : 'Download PDF'}</span>
+                    <span>{isDownloading ? 'Exporting...' : 'Download PDF'}</span>
                 </button>
                 <button
                     onClick={handleShare}
-                    className="px-8 py-3 bg-love-600 hover:bg-love-700 text-white rounded-full font-bold transition shadow-lg hover:shadow-xl shadow-love-500/30 flex items-center gap-2"
+                    className="w-full md:w-auto px-8 py-3 bg-love-600 hover:bg-love-700 text-white rounded-full font-bold transition shadow-lg hover:shadow-xl shadow-love-500/30 flex items-center justify-center gap-2"
                 >
                     <span>❤</span> Share Story
                 </button>
